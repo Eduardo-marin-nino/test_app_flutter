@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:test_app_flutter/data/models/user_model.dart';
-import 'package:test_app_flutter/core/providers/user_provider.dart';
+import 'package:test_app_flutter/core/api/authentication_service.dart';
 import 'package:test_app_flutter/core/utils/hooks/use_navigations.dart';
+import 'package:test_app_flutter/gui/widgets/snackbar_alert.dart';
 
 class RegisterController {
   late BuildContext _context;
   late TextEditingController nameController;
   late TextEditingController emailController;
-  late TextEditingController lastNameController;
+  late TextEditingController passwordController;
 
   //Provider
-  late UserProvider _userProvider;
 
   final ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
 
@@ -24,31 +22,43 @@ class RegisterController {
 
   RegisterController _instance(BuildContext context) {
     _singleton._context = context;
-    _singleton._userProvider = context.read<UserProvider>();
     return _singleton;
   }
 
   void init() {
-    nameController = TextEditingController();
-    lastNameController = TextEditingController();
+    passwordController = TextEditingController();
     emailController = TextEditingController();
   }
 
-  void onLogin() {
+  void onRegister() async {
     if (formKeyRegister.currentState!.validate()) {
-      final user = UserModel(
-        firtsName: nameController.text,
-        lastName: lastNameController.text,
-        email: emailController.text,
-      );
-      _userProvider.user = user;
-      useNavigateReplacePage(_context, "profile");
+      isLoading.value = true;
+
+      final data = {
+        "email": emailController.text,
+        "password": passwordController.text,
+      };
+
+      final response = await AuthenticationService().registerUser(data);
+
+      isLoading.value = false;
+
+      if (response!.token!.isNotEmpty) {
+        _redirect();
+      } else {
+        _snackbar(response.error!);
+      }
     }
   }
 
+  void _redirect() => useNavigateReplacePage(_context, "main");
+
+  void _snackbar(String message) {
+    SnackBarFloating.show(_context, message, type: TypeAlert.error);
+  }
+
   void dispose() {
-    nameController.dispose();
-    lastNameController.dispose();
+    passwordController.dispose();
     emailController.dispose();
   }
 }

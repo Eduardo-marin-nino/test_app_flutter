@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:test_app_flutter/gui/widgets/activity_indicator.dart";
 import "package:test_app_flutter/gui/widgets/button_generic.dart";
 import "package:test_app_flutter/gui/widgets/text_form_input.dart";
 import "package:test_app_flutter/gui/templates/auth_template.dart";
@@ -65,23 +66,29 @@ class _RegisterViewState extends State<RegisterView> {
             ),
             const SizedBox(height: 20),
             TextFormInput(
-              controller: controller.lastNameController,
+              controller: controller.passwordController,
               keyBoardType: TextInputType.text,
               obscureText: true,
               hintText: 'Contraseña',
               validator: (String? value) {
                 if (value!.isEmpty) {
-                  return 'El apellido obligatorio';
+                  return 'Contraseña obligatoria';
                 }
                 return null;
               },
               onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
             ),
             const SizedBox(height: 40),
-            ButtonWidget(
-              label: 'Crear cuenta',
-              onTap: controller.onLogin,
-              width: 200,
+            ValueListenableBuilder<bool>(
+              valueListenable: controller.isLoading,
+              builder: (context, loading, child) {
+                return loading ? const ActivityIndicator() : child!;
+              },
+              child: ButtonWidget(
+                label: 'Crear cuenta',
+                onTap: controller.onRegister,
+                width: 200,
+              ),
             ),
           ],
         ),

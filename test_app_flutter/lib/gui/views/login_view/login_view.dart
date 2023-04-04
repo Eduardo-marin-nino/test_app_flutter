@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:test_app_flutter/gui/widgets/button_generic.dart";
 import "package:test_app_flutter/gui/widgets/text_form_input.dart";
 import "package:test_app_flutter/gui/templates/auth_template.dart";
+import "package:test_app_flutter/gui/widgets/activity_indicator.dart";
 import "package:test_app_flutter/core/utils/hooks/use_navigations.dart";
 import "package:test_app_flutter/core/utils/hooks/use_validations.dart";
 
@@ -66,23 +67,29 @@ class _LoginViewState extends State<LoginView> {
             ),
             const SizedBox(height: 20),
             TextFormInput(
-              controller: controller.lastNameController,
+              controller: controller.passwordController,
               keyBoardType: TextInputType.text,
               obscureText: true,
               hintText: 'Contraseña',
               validator: (String? value) {
                 if (value!.isEmpty) {
-                  return 'El apellido obligatorio';
+                  return 'Contraseña obligatoria';
                 }
                 return null;
               },
               onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
             ),
             const SizedBox(height: 40),
-            ButtonWidget(
-              label: 'Ingresar',
-              onTap: controller.onLogin,
-              width: 200,
+            ValueListenableBuilder<bool>(
+              valueListenable: controller.isLoading,
+              builder: (context, loading, child) {
+                return loading ? const ActivityIndicator() : child!;
+              },
+              child: ButtonWidget(
+                label: 'Ingresar',
+                onTap: controller.onLogin,
+                width: 200,
+              ),
             ),
             const SizedBox(height: 30),
             TextButton(
